@@ -8,6 +8,17 @@ export default defineNuxtConfig({
     apiKeyResend: process.env.RESEND_API_KEY
   },
   modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt'],
+  vite: {
+    optimizeDeps: {
+      include: [
+        '@phosphor-icons/vue',
+        '@vueuse/core',
+        'class-variance-authority',
+        'cn',
+        'reka-ui',
+      ],
+    },
+  },
   shadcn: {
     /**
       * Prefix for all the imported component.
