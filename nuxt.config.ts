@@ -7,11 +7,14 @@ export default defineNuxtConfig({
   runtimeConfig: {
     apiKeyResend: process.env.RESEND_API_KEY
   },
-  modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt'],
+  modules: ['shadcn-nuxt'],
+  css: ['~/assets/css/tailwind.css'],
   vite: {
+    plugins: [tailwindcss()],
     optimizeDeps: {
       include: [
         '@phosphor-icons/vue',
+        '@vue/devtools-core',
         '@vueuse/core',
         'class-variance-authority',
         'cn',

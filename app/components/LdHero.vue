@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PhBolt, PhEnvelopeSimple, PhSealCheck } from '@phosphor-icons/vue'
+import { PhLightning, PhEnvelopeSimple } from '@phosphor-icons/vue'
 import type { BadgeVariants } from '~/components/ui/badge'
 import { ref } from 'vue'
 
@@ -63,7 +63,7 @@ const trustBadges = [
           size="lg"
           class="h-12 rounded tech-mono text-xs font-bold tracking-wider uppercase shadow-[0_0_24px_rgba(0,223,129,0.35)] hover:shadow-[0_0_28px_rgba(0,223,129,0.45)] sm:text-sm"
         >
-          <PhBolt class="size-4" weight="bold" />
+          <PhLightning class="size-4" weight="bold" />
           Dapatkan Alert Gratis
         </Button>
       </form>
