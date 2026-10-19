@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { PhLightning, PhEnvelopeSimple, PhSealCheck } from '@phosphor-icons/vue'
-import {ref} from 'vue';
-import {Field, ErrorMessage, useForm} from 'vee-validate';
+import { PhLightning, PhEnvelopeSimple, PhSealCheck, PhWarningOctagon } from '@phosphor-icons/vue'
+import {ref, computed} from 'vue';
+import {Field, useForm, ErrorMessage} from 'vee-validate';
 import { z } from 'zod';
 import { toTypedSchema } from '@vee-validate/zod';
 
 const formSchema = toTypedSchema(
   z.object({
     email: z
-      .string('Email wajib diisi')
+      .string()
       .email('Email tidak valid'),
   }),
 )
 
-const { handleSubmit, resetForm } = useForm({
+const { handleSubmit, resetForm, errors } = useForm({
   validationSchema: formSchema,
   initialValues: {
     email: '',
@@ -21,6 +21,12 @@ const { handleSubmit, resetForm } = useForm({
 })
 
 const submitted = ref(false)
+
+const statusClass = computed(() =>
+  submitted.value
+    ? 'border-accent/30 bg-accent/10 text-primary'
+    : 'border-red-500/30 bg-red-500/10 text-red-500',
+)
 
 const onSubmit = handleSubmit((values) => {
   submitted.value = true
@@ -61,14 +67,14 @@ const trustBadges = [
       <span class="crosshair-corner bottom-left" />
       <span class="crosshair-corner bottom-right" />
 
-      <Form class="flex flex-col items-stretch gap-2 sm:flex-row" @submit="onSubmit">
+      <form class="flex flex-col items-stretch gap-2 sm:flex-row" @submit="onSubmit">
         <div class="relative flex-1">
           <PhEnvelopeSimple class="absolute left-3.5 top-1/2 size-4.5 -translate-y-1/2 text-muted-foreground/70" weight="regular" />
           <Field
             name="email"
             type="email"
             placeholder="email@example.com"
-            class="h-12 rounded border-white/8 bg-surface-container-lowest pl-11 pr-14 tech-mono text-sm text-white focus-visible:ring-primary/50"
+            class="h-12 rounded border-white/8 bg-surface-container-lowest pl-12 pr-32 tech-mono text-sm text-white focus-visible:ring-primary/50"
           />
           <span class="absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border border-white/10 bg-white/4 px-1.5 py-0.5 tech-mono text-[10px] text-muted-foreground sm:inline-block">
             ESC
@@ -85,11 +91,18 @@ const trustBadges = [
       </form>
 
       <div
-        v-if="submitted"
-        class="mt-2 flex items-center justify-center gap-2 rounded border border-accent/30 bg-accent/10 p-2.5 tech-mono text-xs text-primary"
+        v-if="submitted || errors.email"
+        class="mt-2 flex items-center justify-center gap-2 rounded border p-2.5 tech-mono text-xs"
+        :class="statusClass"
       >
-        <PhSealCheck class="size-3.5" weight="fill" />
-        <span>Status: Email tersimpan. Radar drop aktif untuk Android &amp; iOS.</span>
+        <template v-if="submitted">
+          <PhSealCheck class="size-3.5 shrink-0" weight="fill" />
+          <span>Status: Email tersimpan. Radar drop aktif untuk Android &amp; iOS.</span>
+        </template>
+        <template v-else>
+          <PhWarningOctagon class="size-3.5 shrink-0" weight="fill" />
+          <ErrorMessage name="email" as="span" />
+        </template>
       </div>
     </div>
 
