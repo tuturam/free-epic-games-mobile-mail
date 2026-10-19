@@ -9,7 +9,8 @@ const formSchema = toTypedSchema(
   z.object({
     email: z
       .string()
-      .email('Email tidak valid'),
+      .email('Email tidak valid')
+      .or(z.literal('')),
   }),
 )
 
@@ -21,6 +22,8 @@ const { handleSubmit, resetForm, errors } = useForm({
 })
 
 const submitted = ref(false)
+const loading = ref(false)
+const submitError = ref('')
 
 const statusClass = computed(() =>
   submitted.value
@@ -28,9 +31,23 @@ const statusClass = computed(() =>
     : 'border-red-500/30 bg-red-500/10 text-red-500',
 )
 
-const onSubmit = handleSubmit((values) => {
-  submitted.value = true
-  resetForm()
+const onSubmit = handleSubmit(async (values) => {
+  loading.value = true
+  submitError.value = ''
+  try {
+    await $fetch('/api/resend/create-contact', {
+      method: 'POST',
+      body: { email: values.email },
+    })
+    submitted.value = true
+    resetForm()
+  } catch (err: any) {
+    console.error('[LdHero] submit gagal:', err)
+    submitted.value = false
+    submitError.value = err?.data?.message || 'Gagal menyimpan email. Coba lagi.'
+  } finally {
+    loading.value = false
+  }
 })
 
 const trustBadges = [
@@ -73,6 +90,7 @@ const trustBadges = [
           <Field
             name="email"
             type="email"
+            :validate-on-blur="false"
             placeholder="email@example.com"
             class="h-12 rounded border-white/8 bg-surface-container-lowest pl-12 pr-32 tech-mono text-sm text-white focus-visible:ring-primary/50"
           />
@@ -83,21 +101,26 @@ const trustBadges = [
         <Button
           type="submit"
           size="lg"
+          :disabled="loading"
           class="h-12 rounded tech-mono text-xs font-bold tracking-wider uppercase shadow-[0_0_24px_rgba(0,223,129,0.35)] hover:shadow-[0_0_28px_rgba(0,223,129,0.45)] sm:text-sm"
         >
           <PhLightning class="size-4" weight="bold" />
-          Dapatkan Alert Gratis
+          {{ loading ? 'Mengirim...' : 'Dapatkan Alert Gratis' }}
         </Button>
       </form>
 
       <div
-        v-if="submitted || errors.email"
+        v-if="submitted || submitError || errors.email"
         class="mt-2 flex items-center justify-center gap-2 rounded border p-2.5 tech-mono text-xs"
         :class="statusClass"
       >
         <template v-if="submitted">
           <PhSealCheck class="size-3.5 shrink-0" weight="fill" />
           <span>Status: Email tersimpan. Radar drop aktif untuk Android &amp; iOS.</span>
+        </template>
+        <template v-else-if="submitError">
+          <PhWarningOctagon class="size-3.5 shrink-0" weight="fill" />
+          <span>{{ submitError }}</span>
         </template>
         <template v-else>
           <PhWarningOctagon class="size-3.5 shrink-0" weight="fill" />
