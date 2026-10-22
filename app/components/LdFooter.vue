@@ -2,8 +2,8 @@
 import { PhLightning } from '@phosphor-icons/vue'
 
 const links = [
-  { label: 'Privasi', href: '#' },
-  { label: 'Ketentuan', href: '#' },
+  { label: 'Privacy', href: '#' },
+  { label: 'Terms', href: '#' },
   { label: 'Discord Bot', href: '#' },
   { label: 'Unsubscribe', href: '#' },
 ]
@@ -21,7 +21,7 @@ const links = [
           LOOTDROP MOBILE
         </span>
         <span class="hidden text-white/20 sm:inline">|</span>
-        <span>© 2025 LOOTDROP Alert Hub. Tidak berafiliasi dengan Epic Games, Inc.</span>
+        <span>© 2025 LOOTDROP Alert Hub. Not affiliated with Epic Games, Inc.</span>
       </div>
       <div class="flex items-center gap-4">
         <a

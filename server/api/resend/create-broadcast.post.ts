@@ -18,24 +18,24 @@ export default defineEventHandler(async (event) => {
   if (testTo && !EMAIL_RE.test(testTo)) {
     throw createError({
       statusCode: 400,
-      message: 'Email test tidak valid.',
+      message: 'Invalid test email.',
     })
   }
 
   if (!config.segmentIdResend || !config.fromEmailResend) {
-    console.error('[resend:create-broadcast] konfigurasi belum lengkap', {
+    console.error('[resend:create-broadcast] incomplete configuration', {
       segmentId: !!config.segmentIdResend,
       from: !!config.fromEmailResend,
     })
     throw createError({
       statusCode: 500,
-      message: 'Konfigurasi broadcast belum tersedia.',
+      message: 'Broadcast configuration is not available.',
     })
   }
 
-  const games = await fetchEpicFreeGames(config.epicCountry || 'US')
+  const games = await fetchEpicFreeGames()
   if (games.length === 0) {
-    console.log('[resend:create-broadcast] skip: tidak ada free game aktif hari ini')
+    console.log('[resend:create-broadcast] skip: no active free games today')
     return { skipped: true, reason: 'no-active-free-games' }
   }
 
@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
     )
 
     if (error) {
-      console.error('[resend:create-broadcast] test send gagal:', {
+      console.error('[resend:create-broadcast] test send failed:', {
         testTo,
         name: error.name,
         statusCode: error.statusCode,
@@ -65,14 +65,14 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    console.log('[resend:create-broadcast] test email terkirim:', { testTo, id: data?.id })
+    console.log('[resend:create-broadcast] test email sent:', { testTo, id: data?.id })
     return { success: true, mode: 'test', id: data?.id, subject }
   }
 
   const name = `free-games:${games.map((g) => g.slug).join('+')}`
   const { data: existing, error: listError } = await withRetry(() => resend.broadcasts.list())
   if (listError) {
-    console.error('[resend:create-broadcast] gagal list broadcast:', listError)
+    console.error('[resend:create-broadcast] failed to list broadcasts:', listError)
     throw createError({
       statusCode: listError.statusCode ?? 502,
       message: listError.message,
@@ -80,7 +80,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (existing?.data?.some((b) => b.name === name)) {
-    console.log('[resend:create-broadcast] skip: broadcast sudah pernah dikirim:', name)
+    console.log('[resend:create-broadcast] skip: broadcast already sent:', name)
     return { skipped: true, reason: 'already-sent', name }
   }
 
@@ -96,7 +96,7 @@ export default defineEventHandler(async (event) => {
   )
 
   if (error) {
-    console.error('[resend:create-broadcast] gagal:', {
+    console.error('[resend:create-broadcast] failed:', {
       name,
       statusCode: error.statusCode,
       message: error.message,
@@ -107,7 +107,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  console.log('[resend:create-broadcast] broadcast terkirim:', {
+  console.log('[resend:create-broadcast] broadcast sent:', {
     broadcastId: data?.id,
     name,
     games: games.map((g) => g.title),

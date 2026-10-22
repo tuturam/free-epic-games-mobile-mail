@@ -35,7 +35,7 @@ function gameCard(game: EpicFreeGame): string {
     </td></tr>
     <tr><td style="padding:0;">
       <a href="${esc(game.url)}" target="_blank" style="text-decoration:none;display:block;">
-        <img src="${esc(game.imageUrl)}" alt="${esc(game.title)}" width="568" style="display:block;width:100%;max-width:568px;height:auto;border:0;" />
+        <img src="${esc(game.imageUrl)}" alt="${esc(game.title)}" width="568" style="display:block;width:100%;height:auto;border:0;" />
       </a>
     </td></tr>
     <tr><td style="padding:16px;">

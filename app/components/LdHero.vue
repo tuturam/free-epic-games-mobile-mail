@@ -9,7 +9,7 @@ const formSchema = toTypedSchema(
   z.object({
     email: z
       .string()
-      .email('Email tidak valid')
+      .email('Invalid email')
       .or(z.literal('')),
   }),
 )
@@ -42,16 +42,16 @@ const onSubmit = handleSubmit(async (values) => {
     submitted.value = true
     resetForm()
   } catch (err: any) {
-    console.error('[LdHero] submit gagal:', err)
+    console.error('[LdHero] submit failed:', err)
     submitted.value = false
-    submitError.value = err?.data?.message || 'Gagal menyimpan email. Coba lagi.'
+    submitError.value = err?.data?.message || 'Failed to save email. Try again.'
   } finally {
     loading.value = false
   }
 })
 
 const trustBadges = [
-  { icon: '⚡', iconClass: 'text-primary', label: 'Alert < 2 Menit' },
+  { icon: '⚡', iconClass: 'text-primary', label: 'Alert < 2 Minutes' },
   { icon: '🛡️', iconClass: 'text-emerald-400', label: 'Anti-Spam (1-Klik)' },
   { icon: '🎮', iconClass: 'text-teal-400', label: 'Android & iOS' },
 ]
@@ -70,12 +70,12 @@ const trustBadges = [
     </Badge>
 
     <h1 class="mb-5 max-w-4xl text-3xl font-extrabold leading-[1.15] tracking-tight text-white sm:text-5xl lg:text-6xl">
-      Jangan Pernah Ketinggalan Game Gratis
+      Never Miss a Free Games from
       <span class="bg-gradient-to-r from-primary via-emerald-300 to-teal-200 bg-clip-text text-transparent">Epic Games Mobile</span>
     </h1>
 
     <p class="mb-10 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-      Notifikasi email instan tepat saat vault terbuka di iOS &amp; Android. Tanpa spam, 100% legal, gratis selamanya.
+      Instant email notifications the moment free games go live on iOS &amp; Android. No spam, 100% legal, free forever.
     </p>
 
     <div id="subscribe-section" class="blueprint-box relative mx-auto w-full max-w-xl rounded-lg p-2 shadow-2xl backdrop-blur-md">
@@ -105,7 +105,7 @@ const trustBadges = [
           class="h-12 rounded tech-mono text-xs font-bold tracking-wider uppercase shadow-[0_0_24px_rgba(0,223,129,0.35)] hover:shadow-[0_0_28px_rgba(0,223,129,0.45)] sm:text-sm"
         >
           <PhLightning class="size-4" weight="bold" />
-          {{ loading ? 'Mengirim...' : 'Dapatkan Alert Gratis' }}
+          {{ loading ? 'Sending...' : 'Get Free Alerts' }}
         </Button>
       </form>
 
@@ -116,7 +116,7 @@ const trustBadges = [
       >
         <template v-if="submitted">
           <PhSealCheck class="size-3.5 shrink-0" weight="fill" />
-          <span>Status: Email tersimpan. Radar drop aktif untuk Android &amp; iOS.</span>
+          <span>Status: Email saved. Drop radar active for Android &amp; iOS.</span>
         </template>
         <template v-else-if="submitError">
           <PhWarningOctagon class="size-3.5 shrink-0" weight="fill" />

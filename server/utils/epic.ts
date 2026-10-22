@@ -8,36 +8,72 @@ export interface EpicFreeGame {
   endDate: string
 }
 
-interface EpicPromotion {
-  startDate: string
-  endDate: string
+interface EpicMediaImage {
+  imageSrc: string
+  altText: string
+  imageType: string
+  width: number
+  height: number
 }
 
-interface EpicElement {
-  title: string
-  description?: string
-  urlSlug?: string | null
-  productSlug?: string | null
-  offerMappings?: { pageSlug?: string }[]
-  keyImages?: { type: string; url: string }[]
+interface EpicDiscount {
+  discountAmountDisplay: string
+  originalPriceDisplay: string
+  discountEndDate: string
+}
+
+interface EpicPurchaseEntry {
+  offerLifecycleState?: string
   price?: {
-    totalPrice?: {
-      discountPrice?: number
-      fmtPrice?: { originalPrice?: string }
-    }
+    currencyCode: string
+    decimalPrice: number
   }
-  promotions?: {
-    promotionalOffers?: { promotionalOffers?: EpicPromotion[] }[]
+  priceDisplay?: string
+  purchasePayload?: {
+    offerId: string
+    sandboxId: string
   }
+  purchaseStateEffectiveDate: string
+  purchaseType: string
+  discount?: EpicDiscount
 }
 
-interface EpicResponse {
-  data: {
-    Catalog: {
-      searchStore: {
-        elements: EpicElement[]
-      }
-    }
+interface EpicOfferContent {
+  catalogItemId: string
+  categories: string[]
+  mapping: {
+    slug: string
+  }
+  media: Record<string, EpicMediaImage>
+  purchase: EpicPurchaseEntry[]
+  title: string
+}
+
+interface EpicOffer {
+  content: EpicOfferContent
+  offerId: string
+  sandboxId: string
+}
+
+interface EpicDiscoverModule {
+  offers: EpicOffer[]
+  size: string
+  topicId: string
+  type: string
+  link: {
+    linkText: string
+    src: string
+  }
+  title: string
+}
+
+interface EpicDiscoverResponse {
+  __typename: string
+  data: EpicDiscoverModule[]
+  paging: {
+    count: number
+    start: number
+    total: number
   }
 }
 
@@ -57,40 +93,69 @@ export async function withRetry<T>(fn: () => Promise<T>, attempts = 2, delayMs =
   throw lastError
 }
 
-export async function fetchEpicFreeGames(country: string): Promise<EpicFreeGame[]> {
-  const res = await withRetry(() =>
-    $fetch<EpicResponse>('https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions', {
-      query: { locale: 'en', country, allowCountries: country },
-      timeout: 10_000,
-    }),
+export async function fetchEpicFreeGames(country = 'US'): Promise<EpicFreeGame[]> {
+  const res = await withRetry(
+    () =>
+      $fetch<EpicDiscoverResponse>(
+        'https://egs-platform-service.store.epicgames.com/api/v2/public/discover/home',
+        {
+          query: {
+            count: 10,
+            country,
+            locale: 'en-US',
+            platform: 'android',
+            start: 0,
+            store: 'EGS',
+          },
+          headers: {
+            'User-Agent': 'UEGameRequest/1.0 epicgames',
+            Accept: 'application/json',
+          },
+          timeout: 20_000,
+        },
+      ),
+    4,
+    5000,
   )
 
   const now = Date.now()
   const games: EpicFreeGame[] = []
 
-  for (const el of res.data.Catalog.searchStore.elements) {
-    const offers = el.promotions?.promotionalOffers?.flatMap((o) => o.promotionalOffers ?? []) ?? []
-    const active = offers.find(
-      (o) => new Date(o.startDate).getTime() <= now && now < new Date(o.endDate).getTime(),
+  const freeGameModule = res.data.find((m) => m.type === 'freeGame')
+  if (!freeGameModule) return games
+
+  for (const offer of freeGameModule.offers) {
+    const content = offer.content
+    const purchases = content.purchase ?? []
+
+    const claim = purchases.find(
+      (p) =>
+        p.purchaseType === 'Claim' &&
+        p.price?.decimalPrice === 0 &&
+        new Date(p.purchaseStateEffectiveDate).getTime() <= now,
     )
-    if (!active || el.price?.totalPrice?.discountPrice !== 0) continue
+    if (!claim) continue
 
-    const pageSlug = el.offerMappings?.[0]?.pageSlug || el.urlSlug || el.productSlug
-    if (!pageSlug) continue
+    const claimIndex = purchases.indexOf(claim)
+    const nextPurchase = purchases
+      .slice(claimIndex + 1)
+      .find((p) => new Date(p.purchaseStateEffectiveDate).getTime() > now)
+    const endDate = claim.discount?.discountEndDate ?? nextPurchase?.purchaseStateEffectiveDate
+    if (!endDate || now >= new Date(endDate).getTime()) continue
 
-    const image =
-      el.keyImages?.find((i) => i.type === 'OfferImageWide')?.url ||
-      el.keyImages?.find((i) => i.type === 'DieselStoreFrontWide')?.url ||
-      el.keyImages?.[0]?.url
+    const slug = content.mapping.slug
+    if (!slug) continue
+
+    const image = content.media?.card16x9?.imageSrc || content.media?.coverImage?.imageSrc || ''
 
     games.push({
-      title: el.title,
-      description: el.description ?? '',
-      slug: pageSlug,
-      url: `https://store.epicgames.com/en-US/p/${pageSlug}`,
-      imageUrl: image ?? '',
-      originalPrice: el.price.totalPrice.fmtPrice?.originalPrice ?? '',
-      endDate: active.endDate,
+      title: content.title,
+      description: '',
+      slug,
+      url: `https://store.epicgames.com/en-US/p/${slug}`,
+      imageUrl: image,
+      originalPrice: claim.discount?.originalPriceDisplay ?? claim.priceDisplay ?? '',
+      endDate,
     })
   }
 

@@ -8,8 +8,7 @@ export default defineNuxtConfig({
     apiKeyResend: process.env.RESEND_API_KEY,
     segmentIdResend: process.env.RESEND_SEGMENT_ID,
     broadcastToken: process.env.BROADCAST_TOKEN,
-    fromEmailResend: process.env.RESEND_FROM,
-    epicCountry: process.env.EPIC_COUNTRY
+    fromEmailResend: process.env.RESEND_FROM
   },
   modules: ['shadcn-nuxt'],
   css: ['~/assets/css/tailwind.css'],

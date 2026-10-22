@@ -9,7 +9,7 @@ const vaultOpens = '04D : 18H : 42M'
   <section class="relative px-6 sm:px-10 py-12">
     <div class="mb-6 flex items-center justify-between border-b border-white/6 pb-2">
       <div class="flex items-center gap-2">
-        <span class="tech-mono text-xs font-bold text-primary">[01 // TELEMETRI RADAR]</span>
+        <span class="tech-mono text-xs font-bold text-primary">[01 // RADAR TELEMETRY]</span>
         <span class="tech-mono text-xs text-white/20">/</span>
         <span class="tech-mono text-xs text-muted-foreground">STATUS DROPS &amp; DISPATCH ENGINE</span>
       </div>
@@ -50,7 +50,7 @@ const vaultOpens = '04D : 18H : 42M'
               <span class="text-white">Android &amp; iOS (EU)</span>
             </div>
             <div class="flex justify-between text-[11px] text-muted-foreground">
-              <span>Sisa Waktu:</span>
+              <span>Time Left:</span>
               <span class="font-semibold text-primary">{{ leftNow }}</span>
             </div>
           </div>
@@ -59,7 +59,7 @@ const vaultOpens = '04D : 18H : 42M'
         <CardFooter class="tech-mono mt-5 flex-row items-center justify-between border-t border-white/6 p-0 pt-3 text-[11px]">
           <span class="text-muted-foreground">STORE: EPIC GAMES APP</span>
           <span class="flex items-center gap-0.5 font-semibold text-primary">
-            TERSEDIA <PhArrowRight class="size-3" weight="bold" />
+            AVAILABLE <PhArrowRight class="size-3" weight="bold" />
           </span>
         </CardFooter>
       </Card>
@@ -76,7 +76,7 @@ const vaultOpens = '04D : 18H : 42M'
             [02 // DISPATCH LOG]
           </CardTitle>
           <CardDescription class="tech-mono text-[10px] text-white/40">
-            PREVIEW NOTIFIKASI
+            NOTIFICATION PREVIEW
           </CardDescription>
         </CardHeader>
 
@@ -91,7 +91,7 @@ const vaultOpens = '04D : 18H : 42M'
               [FREE DROP] Fall Guys Mobile is now available!
             </div>
             <div class="text-[10px] leading-relaxed text-muted-foreground">
-              Vault dibuka pada 22:00 WIB. Klik langsung tautan resmi untuk menambahkan ke library tanpa membuka PC.
+              Vault opens at 22:00 UTC. Click the official link directly to add it to your library without opening your PC.
             </div>
             <div class="pt-1">
               <div class="rounded border border-accent/30 bg-accent/10 py-1 text-center tech-mono text-[10px] font-bold text-primary">
@@ -133,7 +133,7 @@ const vaultOpens = '04D : 18H : 42M'
           </div>
 
           <div class="mt-4 rounded border border-white/6 bg-surface-container-lowest p-3 text-center tech-mono">
-            <div class="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">Terbuka Dalam:</div>
+            <div class="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">Opens In:</div>
             <div class="text-lg font-bold tracking-widest text-primary">{{ vaultOpens }}</div>
           </div>
         </CardContent>
@@ -150,11 +150,11 @@ const vaultOpens = '04D : 18H : 42M'
         <span class="font-medium text-white">[DATA STREAM]</span>
         <span>Feed: RSS / Epic Games Mobile Store API</span>
         <span class="hidden text-white/20 sm:inline">|</span>
-        <span class="hidden sm:inline">Refresh: 60 detik</span>
+        <span class="hidden sm:inline">Refresh: 60 seconds</span>
       </div>
       <div class="flex items-center gap-2 text-primary">
         <PhShieldCheck class="size-3.5" weight="bold" />
-        <span>100% Bebas Phishing &amp; Tautan Tidak Resmi</span>
+        <span>100% Phishing-Free &amp; No Unofficial Links</span>
       </div>
     </div>
   </section>

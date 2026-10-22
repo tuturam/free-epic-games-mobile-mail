@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     console.warn('[resend:create-contact] invalid email:', body)
     throw createError({
       statusCode: 400,
-      message: 'Email tidak valid.',
+      message: 'Invalid email.',
     })
   }
 
@@ -16,10 +16,10 @@ export default defineEventHandler(async (event) => {
   const segmentId = config.segmentIdResend
 
   if (!segmentId) {
-    console.error('[resend:create-contact] RESEND_SEGMENT_ID belum dikonfigurasi')
+    console.error('[resend:create-contact] RESEND_SEGMENT_ID is not configured')
     throw createError({
       statusCode: 500,
-      message: 'Konfigurasi segment belum tersedia.',
+      message: 'Segment configuration is not available.',
     })
   }
 
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
   })
 
   if (error) {
-    console.error('[resend:create-contact] gagal:', {
+    console.error('[resend:create-contact] failed:', {
       email,
       segmentId,
       name: error.name,
@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  console.log('[resend:create-contact] sukses:', {
+  console.log('[resend:create-contact] success:', {
     contactId: data?.id,
     email,
     segmentId,
