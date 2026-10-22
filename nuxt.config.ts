@@ -6,7 +6,10 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   runtimeConfig: {
     apiKeyResend: process.env.RESEND_API_KEY,
-    segmentIdResend: process.env.RESEND_SEGMENT_ID
+    segmentIdResend: process.env.RESEND_SEGMENT_ID,
+    broadcastToken: process.env.BROADCAST_TOKEN,
+    fromEmailResend: process.env.RESEND_FROM,
+    epicCountry: process.env.EPIC_COUNTRY
   },
   modules: ['shadcn-nuxt'],
   css: ['~/assets/css/tailwind.css'],
