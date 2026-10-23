@@ -1,74 +1,74 @@
 # LOOTDROP — Free Epic Games Mobile Drop Alerts
 
-Landing page notifikasi email untuk game **gratis Epic Games di mobile (Android & iOS)**.
-Pengunjung memasukkan email, sistem menyimpannya ke segmen [Resend](https://resend.com),
-lalu setiap hari otomatis memeriksa game free-to-claim di Epic Games Store mobile
-dan mengirim broadcast email berisi link klaim resmi.
+An email notification landing page for **free Epic Games mobile games (Android & iOS)**.
+Visitors enter their email, which is stored in a [Resend](https://resend.com)
+segment, and every day the system automatically checks for free-to-claim games on
+the Epic Games mobile store and sends a broadcast email with official claim links.
 
-Proyek ini dibangun dengan **Nuxt 4** (Nitro server) dan dideploy di **Netlify**.
+This project is built with **Nuxt 4** (Nitro server) and deployed on **Netlify**.
 
-> Bukan afiliasi resmi Epic Games, Inc. — hanya agregator notifikasi dengan link resmi ke store.epicgames.com.
+> Not affiliated with Epic Games, Inc. — just a notification aggregator linking to the official store.epicgames.com pages.
 
-## Cara Kerja
+## How It Works
 
 ```mermaid
 flowchart TD
-    A[Pengunjung membuka landing page] --> B[Submit email via form]
+    A[Visitor opens the landing page] --> B[Submits email via form]
     B --> C[POST /api/resend/create-contact]
-    C --> D[Email disimpan ke segmen Resend]
+    C --> D[Email saved to a Resend segment]
     E[Netlify Scheduled Function @daily] --> F[POST /api/resend/create-broadcast]
-    F --> G{Ambil game free-to-claim dari API Epic Games mobile}
-    G -->|Ada game baru| H[Kirim broadcast email via Resend]
-    G -->|Tidak ada / sudah terkirim| I[Skip]
+    F --> G{Fetch free-to-claim games from the Epic Games mobile API}
+    G -->|New games available| H[Send broadcast email via Resend]
+    G -->|None available / already sent| I[Skip]
     H --> D
 ```
 
-1. **Landing page** (`app/`) — halaman `app.vue` merender komponen `LdPage`
-   yang terdiri dari `LdHeader`, `LdHero` (form subscribe), `LdTelemetry`
-   (kartu demo), dan `LdFooter`.
-2. **Subscribe** — form di `LdHero` memvalidasi email dengan Zod
-   lalu memanggil `POST /api/resend/create-contact`, yang membuat kontak
-   baru di Resend pada segmen yang dikonfigurasi.
-3. **Broadcast harian** — Netlify Scheduled Function
-   (`netlify/functions/scheduled-create-broadcast.mts`, cron `@daily`)
-   memanggil `POST /api/resend/create-broadcast` dengan Bearer token.
-4. **Deteksi game gratis** — endpoint broadcast memanggil
-   `fetchEpicFreeGames()` di `server/utils/epic.ts`, yang membaca
+1. **Landing page** (`app/`) — `app.vue` renders the `LdPage` component, which
+   composes `LdHeader`, `LdHero` (subscribe form), `LdTelemetry` (demo cards),
+   and `LdFooter`.
+2. **Subscribe** — the form in `LdHero` validates the email with Zod, then calls
+   `POST /api/resend/create-contact`, which creates a new contact in Resend
+   under the configured segment.
+3. **Daily broadcast** — the Netlify Scheduled Function
+   (`netlify/functions/scheduled-create-broadcast.mts`, cron `@daily`) calls
+   `POST /api/resend/create-broadcast` with a Bearer token.
+4. **Free game detection** — the broadcast endpoint calls `fetchEpicFreeGames()`
+   in `server/utils/epic.ts`, which reads
    `https://egs-platform-service.store.epicgames.com/api/v2/public/discover/home`
-   dengan parameter `platform=android`, lalu memfilter offer bertipe `Claim`
-   berharga 0 dan belum berakhir.
-5. **Kirim email** — email HTML dibangun oleh `buildBroadcastHtml()`
-   (`server/utils/broadcast-template.ts`) dan dikirim sebagai broadcast
-   Resend `send: true`. Idempoten: nama broadcast
-   `free-games:<slug1>+<slug2>` dipakai untuk mencegah kirim ganda.
+   with `platform=android`, then filters for `Claim` offers priced at 0 that
+   haven't ended yet.
+5. **Send email** — the HTML email is built by `buildBroadcastHtml()`
+   (`server/utils/broadcast-template.ts`) and sent as a Resend broadcast with
+   `send: true`. Idempotent: the broadcast name `free-games:<slug1>+<slug2>`
+   prevents duplicate sends.
 
-## Struktur Direktori
+## Project Structure
 
 ```
 .
 ├── app/
-│   ├── app.vue                    # Entry, merender <LdPage />
-│   ├── assets/css/tailwind.css    # Global styles + utility kustom
+│   ├── app.vue                    # Entry point, renders <LdPage />
+│   ├── assets/css/tailwind.css    # Global styles + custom utilities
 │   └── components/
-│       ├── LdHeader.vue           # Navbar sticky dengan logo & CTA
-│       ├── LdHero.vue             # Hero + form subscribe email
-│       ├── LdTelemetry.vue        # Kartu "radar" (contoh data statis)
+│       ├── LdHeader.vue           # Sticky navbar with logo & CTA
+│       ├── LdHero.vue             # Hero + email subscribe form
+│       ├── LdTelemetry.vue        # "Radar" demo cards (static sample data)
 │       ├── LdPage.vue             # Layout wrapper
 │       ├── LdFooter.vue           # Footer
-│       └── ui/                    # Komponen shadcn (badge, button, card, input)
+│       └── ui/                    # shadcn components (badge, button, card, input)
 ├── server/
 │   ├── api/resend/
-│   │   ├── create-contact.post.ts   # Simpan email subscriber
-│   │   └── create-broadcast.post.ts # Kirim broadcast game gratis (Bearer-token)
-│   ├── plugins/dns-ipv4first.ts     # Paksa resolusi DNS IPv4 dulu
+│   │   ├── create-contact.post.ts   # Save subscriber email
+│   │   └── create-broadcast.post.ts # Send free-game broadcast (Bearer token)
+│   ├── plugins/dns-ipv4first.ts     # Force IPv4 DNS resolution first
 │   └── utils/
 │       ├── epic.ts                  # fetchEpicFreeGames + withRetry
-│       ├── broadcast-template.ts    # Template HTML email
-│       └── resend.ts                # Instance client Resend
+│       ├── broadcast-template.ts    # HTML email template
+│       └── resend.ts                # Resend client instance
 ├── netlify/functions/
-│   └── scheduled-create-broadcast.mts  # Scheduler harian (@daily)
+│   └── scheduled-create-broadcast.mts  # Daily scheduler (@daily)
 ├── public/                          # favicon, robots.txt
-└── nuxt.config.ts                   # Runtime config & module shadcn-nuxt
+└── nuxt.config.ts                   # Runtime config & shadcn-nuxt module
 ```
 
 ## Setup
@@ -91,24 +91,24 @@ bun install
 
 ### 2. Environment variables
 
-Buat file `.env` (lihat `.gitignore` — file ini tidak ikut ter-commit):
+Create a `.env` file (see `.gitignore` — it is not committed):
 
 ```bash
-RESEND_API_KEY="re_xxxxxxxx"       # API key dari dashboard Resend
-RESEND_SEGMENT_ID="xxxx"           # ID segmen audience untuk subscriber
-RESEND_FROM="LOOTDROP <onboarding@resend.dev>"  # Alamat pengirim
-BROADCAST_TOKEN="random-string"    # Token untuk mengamankan endpoint broadcast
+RESEND_API_KEY="re_xxxxxxxx"       # API key from the Resend dashboard
+RESEND_SEGMENT_ID="xxxx"           # Audience segment ID for subscribers
+RESEND_FROM="LOOTDROP <onboarding@resend.dev>"  # Sender address
+BROADCAST_TOKEN="random-string"    # Token used to secure the broadcast endpoint
 ```
 
-Untuk scheduled function di Netlify, pastikan `SITE_URL` (atau `URL` /
-`DEPLOY_PRIME_URL`) menunjuk ke URL deploy produksi, misalnya
+For the Netlify scheduled function, make sure `SITE_URL` (or `URL` /
+`DEPLOY_PRIME_URL`) points to the production deploy URL, e.g.
 `https://lootdrop.netlify.app`.
 
-Catatan: `RESEND_FROM` harus dari domain yang sudah diverifikasi di Resend
-guna menghindari email masuk spam. Alamat `onboarding@resend.dev` hanya bisa
-dikirim ke akun Resend milik Anda sendiri (untuk testing).
+Note: `RESEND_FROM` must use a domain verified in Resend to avoid emails
+landing in spam. The `onboarding@resend.dev` address can only send to your own
+Resend account (for testing).
 
-## Menjalankan Aplikasi
+## Running the App
 
 ### Development server
 
@@ -126,9 +126,9 @@ yarn dev
 bun run dev
 ```
 
-Buka `http://localhost:3000`.
+Open `http://localhost:3000`.
 
-### Build untuk produksi
+### Build for production
 
 ```bash
 # npm
@@ -144,7 +144,7 @@ yarn build
 bun run build
 ```
 
-### Preview build produksi
+### Preview the production build
 
 ```bash
 # npm
@@ -160,16 +160,16 @@ yarn preview
 bun run preview
 ```
 
-Dokumentasi lebih lanjut: [Deployment Nuxt](https://nuxt.com/docs/getting-started/deployment).
+See the [Nuxt deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
 
 ## API Endpoints
 
-| Method | Path                              | Auth                | Deskripsi |
-| ------ | --------------------------------- | ------------------- | --------- |
-| `POST` | `/api/resend/create-contact`      | —                   | Menambahkan email subscriber ke segmen Resend. Body: `{ email: string }` |
-| `POST` | `/api/resend/create-broadcast`    | `Bearer <BROADCAST_TOKEN>` | Mengambil game gratis dari Epic, lalu mengirim broadcast email. Body opsional `{ testTo?: string }` untuk kirim test. |
+| Method | Path                              | Auth                | Description |
+| ------ | --------------------------------- | ------------------- | ----------- |
+| `POST` | `/api/resend/create-contact`      | —                   | Adds a subscriber email to the Resend segment. Body: `{ email: string }` |
+| `POST` | `/api/resend/create-broadcast`    | `Bearer <BROADCAST_TOKEN>` | Fetches free games from Epic, then sends the broadcast email. Optional body `{ testTo?: string }` for a test send. |
 
-Contoh kirim test broadcast (misal setelah deploy):
+Example test broadcast (e.g. after deploying):
 
 ```bash
 curl -X POST https://<site-url>/api/resend/create-broadcast \
@@ -178,37 +178,36 @@ curl -X POST https://<site-url>/api/resend/create-broadcast \
   -d '{"testTo":"you@example.com"}'
 ```
 
-Jika tidak ada game gratis aktif atau broadcast dengan nama yang sama
-sudah pernah dikirim, endpoint akan merespons `{ skipped: true, reason: ... }`
-tanpa mengirim email.
+If there are no active free games, or a broadcast with the same name was
+already sent, the endpoint responds with `{ skipped: true, reason: ... }`
+without sending an email.
 
 ## Scheduled Broadcast
 
-`netlify/functions/scheduled-create-broadcast.mts` menggunakan
+`netlify/functions/scheduled-create-broadcast.mts` uses
 [Netlify Scheduled Functions](https://docs.netlify.com/functions/scheduled-functions/)
-dengan konfigurasi `schedule: '@daily'`. Setiap hari function ini:
+with `schedule: '@daily'`. Each day this function:
 
-1. Membaca payload event (berisi `next_run`) untuk logging.
-2. Memastikan `SITE_URL` dan `BROADCAST_TOKEN` tersedia.
-3. Melakukan `POST` ke `${SITE_URL}/api/resend/create-broadcast`
-   dengan Bearer token.
-4. Mengembalikan `200` bila berhasil, `502` bila panggilan endpoint gagal.
+1. Reads the event payload (containing `next_run`) for logging.
+2. Verifies `SITE_URL` and `BROADCAST_TOKEN` are available.
+3. `POST`s to `${SITE_URL}/api/resend/create-broadcast` with the Bearer token.
+4. Returns `200` on success, `502` if the endpoint call fails.
 
-Karena endpoint broadcast dilindungi token, pastikan nilai `BROADCAST_TOKEN`
-di environment Netlify sama persis dengan nilai di environment Nuxt/Netlify
-Site.
+Since the broadcast endpoint is token-protected, make sure `BROADCAST_TOKEN`
+in the Netlify environment matches the value in the Nuxt/Netlify Site
+environment exactly.
 
-## Teknologi
+## Tech Stack
 
-- [Nuxt 4](https://nuxt.com/docs) — framework Vue 3 full-stack (Nitro server)
+- [Nuxt 4](https://nuxt.com/docs) — full-stack Vue 3 framework (Nitro server)
 - [Tailwind CSS v4](https://tailwindcss.com) — styling
-- [shadcn-nuxt](https://www.shadcn-nuxt.com) + [Reka UI](https://reka-ui.com) — komponen UI
-- [vee-validate](https://vee-validate.logaretm.com) + [Zod](https://zod.dev) — validasi form
-- [Resend](https://resend.com) — pengiriman email & broadcast
-- [Netlify Functions](https://docs.netlify.com/functions/) — scheduled job harian
-- [@phosphor-icons/vue](https://phosphoricons.com) — ikon
+- [shadcn-nuxt](https://www.shadcn-nuxt.com) + [Reka UI](https://reka-ui.com) — UI components
+- [vee-validate](https://vee-validate.logaretm.com) + [Zod](https://zod.dev) — form validation
+- [Resend](https://resend.com) — email delivery & broadcasts
+- [Netlify Functions](https://docs.netlify.com/functions/) — daily scheduled job
+- [@phosphor-icons/vue](https://phosphoricons.com) — icons
 
-## Lisensi
+## License
 
-Proyek pribadi. Nama "LOOTDROP" dan aset visual adalah bagian dari proyek ini
-dan tidak berafiliasi dengan Epic Games, Inc.
+Private project. The "LOOTDROP" name and visual assets are part of this
+project and are not affiliated with Epic Games, Inc.
