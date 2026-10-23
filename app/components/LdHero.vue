@@ -92,7 +92,7 @@ const trustBadges = [
             type="email"
             :validate-on-blur="false"
             placeholder="email@example.com"
-            class="h-12 rounded border-white/8 bg-surface-container-lowest pl-12 pr-32 tech-mono text-sm text-white focus-visible:ring-primary/50"
+            class="h-12 rounded border-white/8 bg-surface-container-lowest w-full px-12 tech-mono text-sm text-white focus-visible:ring-primary/50"
           />
           <span class="absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border border-white/10 bg-white/4 px-1.5 py-0.5 tech-mono text-[10px] text-muted-foreground sm:inline-block">
             ESC
