@@ -5,10 +5,10 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   runtimeConfig: {
-    apiKeyResend: process.env.RESEND_API_KEY,
-    segmentIdResend: process.env.RESEND_SEGMENT_ID,
-    broadcastToken: process.env.BROADCAST_TOKEN,
-    fromEmailResend: process.env.RESEND_FROM
+    apiKeyResend: '',
+    segmentIdResend: '',
+    broadcastToken: '',
+    fromEmailResend: ''
   },
   modules: ['shadcn-nuxt'],
   css: ['~/assets/css/tailwind.css'],

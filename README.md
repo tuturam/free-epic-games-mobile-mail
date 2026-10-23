@@ -100,6 +100,17 @@ RESEND_FROM="LOOTDROP <onboarding@resend.dev>"  # Sender address
 BROADCAST_TOKEN="random-string"    # Token used to secure the broadcast endpoint
 ```
 
+Generate a strong `BROADCAST_TOKEN` with any random-string tool, e.g.:
+
+```bash
+openssl rand -hex 32
+# or, if you prefer Node
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+Copy the output into `BROADCAST_TOKEN` (in `.env` for local, and in the Netlify
+environment variables — both must match).
+
 For the Netlify scheduled function, make sure `SITE_URL` (or `URL` /
 `DEPLOY_PRIME_URL`) points to the production deploy URL, e.g.
 `https://lootdrop.netlify.app`.
@@ -195,7 +206,8 @@ with `schedule: '@daily'`. Each day this function:
 
 Since the broadcast endpoint is token-protected, make sure `BROADCAST_TOKEN`
 in the Netlify environment matches the value in the Nuxt/Netlify Site
-environment exactly.
+environment exactly. Generate it with `openssl rand -hex 32` (see
+[Setup](#2-environment-variables)) and set the same value in both places.
 
 ## Tech Stack
 

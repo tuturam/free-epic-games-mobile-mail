@@ -12,8 +12,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const config = useRuntimeConfig()
-  const segmentId = config.segmentIdResend
+  const segmentId = process.env.RESEND_SEGMENT_ID
 
   if (!segmentId) {
     console.error('[resend:create-contact] RESEND_SEGMENT_ID is not configured')

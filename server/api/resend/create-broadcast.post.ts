@@ -2,10 +2,14 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
+  // Runtime fallback keeps secrets out of the build output (Netlify secrets scan).
+  const broadcastToken = config.broadcastToken || process.env.BROADCAST_TOKEN
+  const segmentIdResend = config.segmentIdResend || process.env.RESEND_SEGMENT_ID
+  const fromEmailResend = config.fromEmailResend || process.env.RESEND_FROM
 
   const authHeader = getHeader(event, 'authorization')
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : ''
-  if (!config.broadcastToken || token !== config.broadcastToken) {
+  if (!broadcastToken || token !== broadcastToken) {
     throw createError({
       statusCode: 401,
       message: 'Unauthorized.',
@@ -22,10 +26,10 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  if (!config.segmentIdResend || !config.fromEmailResend) {
+  if (!segmentIdResend || !fromEmailResend) {
     console.error('[resend:create-broadcast] incomplete configuration', {
-      segmentId: !!config.segmentIdResend,
-      from: !!config.fromEmailResend,
+      segmentId: !!segmentIdResend,
+      from: !!fromEmailResend,
     })
     throw createError({
       statusCode: 500,
@@ -45,7 +49,7 @@ export default defineEventHandler(async (event) => {
   if (testTo) {
     const { data, error } = await withRetry(() =>
       resend.emails.send({
-        from: config.fromEmailResend,
+        from: fromEmailResend,
         to: [testTo],
         subject: `[TEST] ${subject}`,
         html,
@@ -86,8 +90,8 @@ export default defineEventHandler(async (event) => {
 
   const { data, error } = await withRetry(() =>
     resend.broadcasts.create({
-      segmentId: config.segmentIdResend,
-      from: config.fromEmailResend,
+      segmentId: segmentIdResend,
+      from: fromEmailResend,
       subject,
       html,
       name,
