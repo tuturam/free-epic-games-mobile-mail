@@ -1,4 +1,4 @@
-# LOOTDROP — Free Epic Games Mobile Drop Alerts
+# EpicGamesMobileFreeMail — Free Epic Games Mobile Drop Alerts
 
 An email notification landing page for **free Epic Games mobile games (Android & iOS)**.
 Visitors enter their email, which is stored in a [Resend](https://resend.com)
@@ -57,14 +57,17 @@ flowchart TD
 │       ├── LdFooter.vue           # Footer
 │       └── ui/                    # shadcn components (badge, button, card, input)
 ├── server/
+│   ├── api/epic/
+│   │   └── free-games.get.ts        # Live free-game feed for the landing page (cached 60s)
 │   ├── api/resend/
 │   │   ├── create-contact.post.ts   # Save subscriber email
 │   │   └── create-broadcast.post.ts # Send free-game broadcast (Bearer token)
 │   ├── plugins/dns-ipv4first.ts     # Force IPv4 DNS resolution first
 │   └── utils/
-│       ├── epic.ts                  # fetchEpicFreeGames + withRetry
+│       ├── epic.ts                  # fetchEpicShowcase / fetchEpicFreeGames + withRetry
 │       ├── broadcast-template.ts    # HTML email template
 │       └── resend.ts                # Resend client instance
+├── shared/types/epic.ts          # Types shared by server + app (Epic feed shapes)
 ├── netlify/functions/
 │   └── scheduled-create-broadcast.mts  # Daily scheduler (@daily)
 ├── public/                          # favicon, robots.txt
@@ -96,7 +99,7 @@ Create a `.env` file (see `.gitignore` — it is not committed):
 ```bash
 RESEND_API_KEY="re_xxxxxxxx"       # API key from the Resend dashboard
 RESEND_SEGMENT_ID="xxxx"           # Audience segment ID for subscribers
-RESEND_FROM="LOOTDROP <onboarding@resend.dev>"  # Sender address
+RESEND_FROM="EpicGamesMobileFreeMail <onboarding@resend.dev>"  # Sender address
 BROADCAST_TOKEN="random-string"    # Token used to secure the broadcast endpoint
 ```
 
@@ -113,7 +116,7 @@ environment variables — both must match).
 
 For the Netlify scheduled function, make sure `SITE_URL` (or `URL` /
 `DEPLOY_PRIME_URL`) points to the production deploy URL, e.g.
-`https://lootdrop.netlify.app`.
+`https://freeepicgamesmobile.tuturam.me`.
 
 Note: `RESEND_FROM` must use a domain verified in Resend to avoid emails
 landing in spam. The `onboarding@resend.dev` address can only send to your own
@@ -179,6 +182,7 @@ See the [Nuxt deployment documentation](https://nuxt.com/docs/getting-started/de
 | ------ | --------------------------------- | ------------------- | ----------- |
 | `POST` | `/api/resend/create-contact`      | —                   | Adds a subscriber email to the Resend segment. Body: `{ email: string }` |
 | `POST` | `/api/resend/create-broadcast`    | `Bearer <BROADCAST_TOKEN>` | Fetches free games from Epic, then sends the broadcast email. Optional body `{ testTo?: string }` for a test send. |
+| `GET`  | `/api/epic/free-games`            | —                   | Live feed for the landing page: current free-to-claim games plus the next scheduled drop. Cached for 60 seconds. |
 
 Example test broadcast (e.g. after deploying):
 
@@ -221,5 +225,5 @@ environment exactly. Generate it with `openssl rand -hex 32` (see
 
 ## License
 
-Private project. The "LOOTDROP" name and visual assets are part of this
+Private project. The "EpicGamesMobileFreeMail" name and visual assets are part of this
 project and are not affiliated with Epic Games, Inc.

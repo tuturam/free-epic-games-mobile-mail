@@ -1,4 +1,4 @@
-import type { EpicFreeGame } from './epic'
+import type { EpicFreeGame } from '../../shared/types/epic'
 
 const BG = '#0c0e12'
 const SURFACE = '#111318'
@@ -74,7 +74,7 @@ export function buildBroadcastHtml(games: EpicFreeGame[]): string {
   <tr><td align="center" style="padding:32px 16px;">
     <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
       <tr><td style="padding:0 0 24px 0;text-align:center;">
-        <span style="font-family:Menlo,Consolas,monospace;font-size:13px;font-weight:bold;letter-spacing:4px;color:${PRIMARY};">LOOTDROP</span><br />
+        <span style="font-family:Menlo,Consolas,monospace;font-size:13px;font-weight:bold;letter-spacing:4px;color:${PRIMARY};">EpicGamesMobileFreeMail</span><br />
         <span style="font-family:Menlo,Consolas,monospace;font-size:10px;letter-spacing:2px;color:${MUTED};">[ FREE DROP ALERT // EPIC GAMES ]</span>
       </td></tr>
       <tr><td style="padding:0 0 24px 0;">
@@ -84,10 +84,10 @@ export function buildBroadcastHtml(games: EpicFreeGame[]): string {
       ${cards}
       <tr><td style="padding:16px 0 0 0;border-top:1px solid ${BORDER};">
         <p style="margin:0 0 8px 0;font-family:Menlo,Consolas,monospace;font-size:11px;color:${MUTED};">
-          You are receiving this because you subscribed to LOOTDROP free game alerts.
+          You are receiving this because you subscribed to EpicGamesMobileFreeMail free game alerts.
         </p>
         <p style="margin:0;font-family:Menlo,Consolas,monospace;font-size:11px;color:${MUTED};">
-          <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:${MUTED};text-decoration:underline;">Unsubscribe</a> &nbsp;|&nbsp; LOOTDROP Alert Hub — not affiliated with Epic Games, Inc.
+          <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:${MUTED};text-decoration:underline;">Unsubscribe</a> &nbsp;|&nbsp; EpicGamesMobileFreeMail Alert Hub — not affiliated with Epic Games, Inc.
         </p>
       </td></tr>
     </table>

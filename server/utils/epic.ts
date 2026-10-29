@@ -1,12 +1,4 @@
-export interface EpicFreeGame {
-  title: string
-  description: string
-  slug: string
-  url: string
-  imageUrl: string
-  originalPrice: string
-  endDate: string
-}
+import type { EpicFreeGame, EpicShowcase, EpicUpcomingGame } from '../../shared/types/epic'
 
 interface EpicMediaImage {
   imageSrc: string
@@ -93,7 +85,7 @@ export async function withRetry<T>(fn: () => Promise<T>, attempts = 2, delayMs =
   throw lastError
 }
 
-export async function fetchEpicFreeGames(country = 'US'): Promise<EpicFreeGame[]> {
+export async function fetchEpicShowcase(country = 'US'): Promise<EpicShowcase> {
   const res = await withRetry(
     () =>
       $fetch<EpicDiscoverResponse>(
@@ -120,13 +112,20 @@ export async function fetchEpicFreeGames(country = 'US'): Promise<EpicFreeGame[]
 
   const now = Date.now()
   const games: EpicFreeGame[] = []
+  const upcomingOffers: EpicUpcomingGame[] = []
 
   const freeGameModule = res.data.find((m) => m.type === 'freeGame')
-  if (!freeGameModule) return games
+  if (!freeGameModule) return { games, upcoming: null }
 
   for (const offer of freeGameModule.offers) {
     const content = offer.content
     const purchases = content.purchase ?? []
+
+    const slug = content.mapping.slug
+    if (!slug) continue
+
+    const image = content.media?.card16x9?.imageSrc || content.media?.coverImage?.imageSrc || ''
+    const url = `https://store.epicgames.com/en-US/p/${slug}`
 
     const claim = purchases.find(
       (p) =>
@@ -134,30 +133,49 @@ export async function fetchEpicFreeGames(country = 'US'): Promise<EpicFreeGame[]
         p.price?.decimalPrice === 0 &&
         new Date(p.purchaseStateEffectiveDate).getTime() <= now,
     )
-    if (!claim) continue
 
-    const claimIndex = purchases.indexOf(claim)
-    const nextPurchase = purchases
-      .slice(claimIndex + 1)
-      .find((p) => new Date(p.purchaseStateEffectiveDate).getTime() > now)
-    const endDate = claim.discount?.discountEndDate ?? nextPurchase?.purchaseStateEffectiveDate
-    if (!endDate || now >= new Date(endDate).getTime()) continue
+    if (claim) {
+      const claimIndex = purchases.indexOf(claim)
+      const nextPurchase = purchases
+        .slice(claimIndex + 1)
+        .find((p) => new Date(p.purchaseStateEffectiveDate).getTime() > now)
+      const endDate = claim.discount?.discountEndDate ?? nextPurchase?.purchaseStateEffectiveDate
+      if (endDate && now < new Date(endDate).getTime()) {
+        games.push({
+          title: content.title,
+          description: '',
+          slug,
+          url,
+          imageUrl: image,
+          originalPrice: claim.discount?.originalPriceDisplay ?? claim.priceDisplay ?? '',
+          endDate,
+        })
+        continue
+      }
+    }
 
-    const slug = content.mapping.slug
-    if (!slug) continue
-
-    const image = content.media?.card16x9?.imageSrc || content.media?.coverImage?.imageSrc || ''
-
-    games.push({
-      title: content.title,
-      description: '',
-      slug,
-      url: `https://store.epicgames.com/en-US/p/${slug}`,
-      imageUrl: image,
-      originalPrice: claim.discount?.originalPriceDisplay ?? claim.priceDisplay ?? '',
-      endDate,
-    })
+    const nextClaim = purchases.find(
+      (p) =>
+        p.purchaseType === 'Claim' &&
+        p.price?.decimalPrice === 0 &&
+        new Date(p.purchaseStateEffectiveDate).getTime() > now,
+    )
+    if (nextClaim) {
+      upcomingOffers.push({
+        title: content.title,
+        slug,
+        url,
+        imageUrl: image,
+        startDate: nextClaim.purchaseStateEffectiveDate,
+      })
+    }
   }
 
-  return games
+  upcomingOffers.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+
+  return { games, upcoming: upcomingOffers[0] ?? null }
+}
+
+export async function fetchEpicFreeGames(country = 'US'): Promise<EpicFreeGame[]> {
+  return (await fetchEpicShowcase(country)).games
 }

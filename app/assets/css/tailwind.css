@@ -79,7 +79,7 @@
   --surface-container-high: hsl(220 12% 18%); /* #282b31 */
 
   /* Brand Accent Colors */
-  --primary: hsl(155 100% 44%); /* #00df81 - Emerald/Mint Lootdrop */
+  --primary: hsl(155 100% 44%); /* #00df81 - Emerald/Mint EpicGamesMobileFreeMail */
   --primary-foreground: hsl(222 17% 7%); /* #0c0e12 */
 
   --secondary: hsl(160 84% 39%); /* #10b981 */
@@ -239,7 +239,7 @@
     right: -5px;
   }
 
-  /* Aksen Glow Hijau Mint Lootdrop */
+  /* Aksen Glow Hijau Mint EpicGamesMobileFreeMail */
   .glow-mint {
     box-shadow: 0 0 25px -4px rgba(0, 223, 129, 0.35);
   }

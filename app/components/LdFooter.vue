@@ -18,10 +18,10 @@ const links = [
       <div class="flex flex-col items-center gap-3 sm:flex-row">
         <span class="flex items-center gap-1.5 font-bold text-white">
           <PhLightning class="size-3.5 text-primary" weight="fill" />
-          LOOTDROP MOBILE
+          EpicGamesMobileFreeMail
         </span>
         <span class="hidden text-white/20 sm:inline">|</span>
-        <span>© 2025 LOOTDROP Alert Hub. Not affiliated with Epic Games, Inc.</span>
+        <span>© 2025 EpicGamesMobileFreeMail Alert Hub. Not affiliated with Epic Games, Inc.</span>
       </div>
       <div class="flex items-center gap-4">
         <a

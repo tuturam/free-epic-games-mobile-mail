@@ -59,15 +59,6 @@ const trustBadges = [
 
 <template>
   <section class="relative flex flex-col items-center border-b border-white/8 px-6 sm:px-10 pt-16 pb-14 text-center">
-    <Badge
-      variant="outline"
-      class="gap-2 px-3 py-1 rounded-full border-white/12 bg-surface/90 tech-mono text-[11px] text-muted-foreground shadow-sm"
-    >
-      <span class="size-1.5 rounded-full bg-primary animate-pulse" />
-      <span class="font-semibold text-white">[ v1.4 LIVE FEED ]</span>
-      <span class="text-white/20">|</span>
-      <span class="tracking-wide text-primary">EPIC GAMES MOBILE DROP RADAR</span>
-    </Badge>
 
     <h1 class="mb-5 max-w-4xl text-3xl font-extrabold leading-[1.15] tracking-tight text-white sm:text-5xl lg:text-6xl">
       Never Miss a Free Games from
