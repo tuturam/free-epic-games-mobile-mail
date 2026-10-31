@@ -25,6 +25,13 @@ export interface EpicUpcomingGame {
 export interface EpicShowcase {
   games: EpicFreeGame[]
   upcoming: EpicUpcomingGame | null
+  /**
+   * ISO timestamp of the next free-game rotation: the earliest `endDate`
+   * among active games. The mobile discover API does not announce the next
+   * title, but its drop always rotates when the current window closes, so
+   * this is a truthful "vault opens" estimate.
+   */
+  nextRotationAt: string | null
 }
 
 export interface EpicFeedResponse extends EpicShowcase {

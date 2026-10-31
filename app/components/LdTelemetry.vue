@@ -10,6 +10,9 @@ const games = computed(() => data.value?.games ?? [])
 const activeGame = computed(() => games.value[0] ?? null)
 const extraCount = computed(() => Math.max(0, games.value.length - 1))
 const upcomingGame = computed(() => data.value?.upcoming ?? null)
+// Fallback "vault opens" estimate: the current claim window's end (rotation time),
+// since the mobile API never announces the next title.
+const nextRotationAt = computed(() => data.value?.nextRotationAt ?? null)
 const region = computed(() => data.value?.country ?? 'US')
 
 // The Epic API only returns dates (discountEndDate / purchaseStateEffectiveDate),
@@ -72,8 +75,9 @@ const timeLeft = computed(() => {
 })
 
 const vaultOpens = computed(() => {
-  if (!ready.value || !upcomingGame.value) return '--D : --H : --M'
-  return formatVaultCountdown(new Date(upcomingGame.value.startDate).getTime() - nowMs.value)
+  const targetIso = upcomingGame.value?.startDate ?? nextRotationAt.value
+  if (!ready.value || !targetIso) return '--D : --H : --M'
+  return formatVaultCountdown(new Date(targetIso).getTime() - nowMs.value)
 })
 
 const endsDate = computed(() => (activeGame.value ? formatEndDate(activeGame.value.endDate) : '—'))
@@ -248,6 +252,18 @@ const syncLabel = computed(() => (data.value?.fetchedAt ? formatSyncTime(data.va
           <div class="mt-4 rounded border border-white/6 bg-surface-container-lowest p-3 text-center tech-mono">
             <div class="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">Opens In:</div>
             <div class="text-lg font-bold tracking-widest text-primary">{{ vaultOpens }}</div>
+          </div>
+
+          <div class="mt-2 tech-mono text-[10px] leading-relaxed text-muted-foreground">
+            <template v-if="upcomingGame">
+              CONFIRMED · TITLE REVEALED {{ formatEndDate(upcomingGame.startDate) }} UTC
+            </template>
+            <template v-else-if="nextRotationAt">
+              SCHEDULE ESTIMATE · NEXT DROP ROTATES AT CURRENT WINDOW END ({{ formatEndDate(nextRotationAt) }} UTC)
+            </template>
+            <template v-else>
+              NO SCHEDULE PUBLISHED IN EPIC FEED
+            </template>
           </div>
         </CardContent>
 

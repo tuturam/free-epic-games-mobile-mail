@@ -115,7 +115,7 @@ export async function fetchEpicShowcase(country = 'US'): Promise<EpicShowcase> {
   const upcomingOffers: EpicUpcomingGame[] = []
 
   const freeGameModule = res.data.find((m) => m.type === 'freeGame')
-  if (!freeGameModule) return { games, upcoming: null }
+  if (!freeGameModule) return { games, upcoming: null, nextRotationAt: null }
 
   for (const offer of freeGameModule.offers) {
     const content = offer.content
@@ -173,7 +173,15 @@ export async function fetchEpicShowcase(country = 'US'): Promise<EpicShowcase> {
 
   upcomingOffers.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
 
-  return { games, upcoming: upcomingOffers[0] ?? null }
+  // The mobile API never announces the next title, but the drop rotates when
+  // the current claim window closes — derive the rotation moment from the
+  // earliest active end date so the vault countdown can be truthful.
+  const nextRotationAt =
+    games.length > 0
+      ? games.map((g) => g.endDate).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0]
+      : null
+
+  return { games, upcoming: upcomingOffers[0] ?? null, nextRotationAt }
 }
 
 export async function fetchEpicFreeGames(country = 'US'): Promise<EpicFreeGame[]> {
