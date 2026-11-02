@@ -20,6 +20,7 @@ export default async (req: Request, _context: Context) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'User-Agent': 'Netlify-Scheduled-Function/1.0',
       Authorization: `Bearer ${token}`,
     },
   })
