@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PhLightning, PhEnvelopeSimple, PhSealCheck, PhWarningOctagon } from '@phosphor-icons/vue'
+import { PhEnvelopeSimple, PhSealCheck, PhWarningOctagon } from '@phosphor-icons/vue'
 import {ref, computed} from 'vue';
 import {Field, useForm, ErrorMessage} from 'vee-validate';
 import { z } from 'zod';
@@ -87,7 +87,7 @@ const trustBadges = [
             :validate-on-blur="false"
             :validate-on-change="false"
             placeholder="you@domain.com"
-            class="h-12 rounded border-white/8 bg-surface-container-lowest w-full px-12 tech-mono text-sm text-white focus-visible:ring-primary/50"
+            class="h-12 rounded bg-surface-container-lowest w-full px-12 tech-mono text-sm text-white"
           />
           <span class="absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border border-white/10 bg-white/4 px-1.5 py-0.5 tech-mono text-[10px] text-muted-foreground sm:inline-block">
             ESC
@@ -99,7 +99,6 @@ const trustBadges = [
           :disabled="loading || !values.email?.length"
           class="h-12 rounded tech-mono text-xs font-bold tracking-wider uppercase shadow-[0_0_24px_rgba(0,223,129,0.35)] hover:shadow-[0_0_28px_rgba(0,223,129,0.45)] sm:text-sm"
         >
-          <PhLightning class="size-4" weight="bold" />
           {{ loading ? 'Sending...' : 'Get Free Alerts' }}
         </Button>
       </form>

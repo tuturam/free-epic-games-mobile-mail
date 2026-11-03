@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PhLightning } from '@phosphor-icons/vue'
 
 const links = [
   { label: 'Privacy', href: '#' },
@@ -17,7 +16,6 @@ const links = [
     <div class="flex flex-col items-center justify-between gap-4 px-6 py-6 tech-mono text-xs text-muted-foreground sm:px-8 md:flex-row">
       <div class="flex flex-col items-center gap-3 sm:flex-row">
         <span class="flex items-center gap-1.5 font-bold text-white">
-          <PhLightning class="size-3.5 text-primary" weight="fill" />
           EpicGamesMobileFreeMail
         </span>
         <span class="hidden text-white/20 sm:inline">|</span>
