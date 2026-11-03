@@ -1,3 +1,5 @@
+import { isTesterEmailDomain } from '~~/shared/utils/email-validation'
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export default defineEventHandler(async (event) => {
@@ -9,6 +11,14 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 400,
       message: 'Invalid email.',
+    })
+  }
+
+  if (isTesterEmailDomain(email)) {
+    console.warn('[resend:create-contact] rejected tester domain email:', email)
+    throw createError({
+      statusCode: 400,
+      message: 'Test or example email domains are not allowed.',
     })
   }
 

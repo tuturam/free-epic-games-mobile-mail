@@ -4,17 +4,20 @@ import {ref, computed} from 'vue';
 import {Field, useForm, ErrorMessage} from 'vee-validate';
 import { z } from 'zod';
 import { toTypedSchema } from '@vee-validate/zod';
+import { isTesterEmailDomain } from '~~/shared/utils/email-validation';
 
 const formSchema = toTypedSchema(
   z.object({
     email: z
       .string()
       .email('Invalid email')
-      .or(z.literal('')),
+      .refine((val) => !isTesterEmailDomain(val), {
+        message: 'Test or example email domains are not allowed.',
+      }),
   }),
 )
 
-const { handleSubmit, resetForm, errors } = useForm({
+const { handleSubmit, resetForm, errors, values } = useForm({
   validationSchema: formSchema,
   initialValues: {
     email: '',
@@ -61,7 +64,7 @@ const trustBadges = [
   <section class="relative flex flex-col items-center border-b border-white/8 px-6 sm:px-10 pt-16 pb-14 text-center">
 
     <h1 class="mb-5 max-w-4xl text-3xl font-extrabold leading-[1.15] tracking-tight text-white sm:text-5xl lg:text-6xl">
-      Never Miss a Free Games from
+      Never Miss Free Games from
       <span class="bg-gradient-to-r from-primary via-emerald-300 to-teal-200 bg-clip-text text-transparent">Epic Games Mobile</span>
     </h1>
 
@@ -82,7 +85,8 @@ const trustBadges = [
             name="email"
             type="email"
             :validate-on-blur="false"
-            placeholder="email@example.com"
+            :validate-on-change="false"
+            placeholder="you@domain.com"
             class="h-12 rounded border-white/8 bg-surface-container-lowest w-full px-12 tech-mono text-sm text-white focus-visible:ring-primary/50"
           />
           <span class="absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border border-white/10 bg-white/4 px-1.5 py-0.5 tech-mono text-[10px] text-muted-foreground sm:inline-block">
@@ -92,7 +96,7 @@ const trustBadges = [
         <Button
           type="submit"
           size="lg"
-          :disabled="loading"
+          :disabled="loading || !values.email?.length"
           class="h-12 rounded tech-mono text-xs font-bold tracking-wider uppercase shadow-[0_0_24px_rgba(0,223,129,0.35)] hover:shadow-[0_0_28px_rgba(0,223,129,0.45)] sm:text-sm"
         >
           <PhLightning class="size-4" weight="bold" />
