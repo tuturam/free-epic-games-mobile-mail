@@ -1,3 +1,5 @@
+import http2 from 'node:http2'
+import https from 'node:https'
 import type { EpicFreeGame, EpicShowcase, EpicUpcomingGame } from '../../shared/types/epic'
 
 interface EpicMediaImage {
@@ -85,30 +87,120 @@ export async function withRetry<T>(fn: () => Promise<T>, attempts = 2, delayMs =
   throw lastError
 }
 
+const DISCOVER_ENDPOINT = 'https://egs-platform-service.store.epicgames.com/api/v2/public/discover/home'
+
+// Epic protects this endpoint with Cloudflare Bot Management: from a datacenter IP,
+// undici's fingerprint (what $fetch uses) gets a 403 managed challenge, while Node's
+// core clients are accepted. Hence the plain HTTP/2 client below instead of $fetch.
+const EPIC_HEADERS = {
+  'User-Agent': 'UEGameRequest/1.0 epicgames',
+  Accept: 'application/json',
+  'Accept-Language': 'en-US,en;q=0.9',
+}
+
+async function requestDiscover(country: string): Promise<EpicDiscoverResponse> {
+  const target = `${DISCOVER_ENDPOINT}?${new URLSearchParams({
+    count: '10',
+    country,
+    locale: 'en-US',
+    platform: 'android',
+    start: '0',
+    store: 'EGS',
+  })}`
+
+  try {
+    return await requestJsonHttp2<EpicDiscoverResponse>(target, 6_000)
+  } catch (error) {
+    console.warn('[epic] http2 failed, retrying over https:', error)
+    return await requestJsonHttps<EpicDiscoverResponse>(target, 4_000)
+  }
+}
+
+async function requestJsonHttp2<T>(target: string, timeoutMs: number): Promise<T> {
+  const url = new URL(target)
+  const session = http2.connect(url.origin)
+
+  try {
+    return await new Promise<T>((resolve, reject) => {
+      // Idle timer: the payload is ~500 KB, so it resets on every chunk.
+      let timer: ReturnType<typeof setTimeout>
+      const resetTimer = () => {
+        clearTimeout(timer)
+        timer = setTimeout(() => {
+          reject(new Error('Epic request timed out'))
+          session.destroy()
+        }, timeoutMs)
+      }
+      resetTimer()
+
+      const req = session.request({
+        ':method': 'GET',
+        ':path': `${url.pathname}${url.search}`,
+        ...EPIC_HEADERS,
+      })
+
+      let status = 0
+      let body = ''
+
+      req.setEncoding('utf8')
+      req.on('response', (headers) => {
+        status = Number(headers[':status'] ?? 0)
+      })
+      req.on('data', (chunk: string) => {
+        body += chunk
+        resetTimer()
+      })
+      req.on('error', (error) => {
+        clearTimeout(timer)
+        reject(error)
+      })
+      req.on('end', () => {
+        clearTimeout(timer)
+        if (status !== 200) {
+          reject(new Error(`Epic returned ${status}`))
+          return
+        }
+        try {
+          resolve(JSON.parse(body) as T)
+        } catch {
+          reject(new Error('Epic returned invalid JSON'))
+        }
+      })
+      req.end()
+    })
+  } finally {
+    session.close()
+  }
+}
+
+async function requestJsonHttps<T>(target: string, timeoutMs: number): Promise<T> {
+  return await new Promise<T>((resolve, reject) => {
+    const req = https.request(target, { headers: EPIC_HEADERS }, (res) => {
+      let body = ''
+      res.setEncoding('utf8')
+      res.on('data', (chunk: string) => {
+        body += chunk
+      })
+      res.on('end', () => {
+        if ((res.statusCode ?? 0) !== 200) {
+          reject(new Error(`Epic returned ${res.statusCode}`))
+          return
+        }
+        try {
+          resolve(JSON.parse(body) as T)
+        } catch {
+          reject(new Error('Epic returned invalid JSON'))
+        }
+      })
+    })
+    req.setTimeout(timeoutMs, () => req.destroy(new Error('Epic request timed out')))
+    req.on('error', reject)
+    req.end()
+  })
+}
+
 export async function fetchEpicShowcase(country = 'US'): Promise<EpicShowcase> {
-  const res = await withRetry(
-    () =>
-      $fetch<EpicDiscoverResponse>(
-        'https://egs-platform-service.store.epicgames.com/api/v2/public/discover/home',
-        {
-          query: {
-            count: 10,
-            country,
-            locale: 'en-US',
-            platform: 'android',
-            start: 0,
-            store: 'EGS',
-          },
-          headers: {
-            'User-Agent': 'UEGameRequest/1.0 epicgames',
-            Accept: 'application/json',
-          },
-          timeout: 20_000,
-        },
-      ),
-    4,
-    5000,
-  )
+  const res = await withRetry(() => requestDiscover(country), 2, 600)
 
   const now = Date.now()
   const games: EpicFreeGame[] = []
@@ -178,7 +270,7 @@ export async function fetchEpicShowcase(country = 'US'): Promise<EpicShowcase> {
   // earliest active end date so the vault countdown can be truthful.
   const nextRotationAt =
     games.length > 0
-      ? games.map((g) => g.endDate).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0]
+      ? (games.map((g) => g.endDate).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0] ?? null)
       : null
 
   return { games, upcoming: upcomingOffers[0] ?? null, nextRotationAt }
