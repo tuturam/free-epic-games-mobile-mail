@@ -8,7 +8,14 @@ export default defineNuxtConfig({
     apiKeyResend: '',
     segmentIdResend: '',
     broadcastToken: '',
-    fromEmailResend: ''
+    fromEmailResend: '',
+    public: {
+      // Set NUXT_PUBLIC_SITE_URL=https://your-domain.com in production
+      siteUrl: ''
+    }
+  },
+  routeRules: {
+    '/': { prerender: true },
   },
   modules: ['shadcn-nuxt'],
   css: ['~/assets/css/tailwind.css'],
