@@ -27,26 +27,39 @@ const { handleSubmit, resetForm, errors, values } = useForm({
 const submitted = ref(false)
 const loading = ref(false)
 const submitError = ref('')
+const submitMessage = ref('')
+const submitStatus = ref<'new-subscriber' | 'already-subscribed' | ''>('')
 
-const statusClass = computed(() =>
-  submitted.value
-    ? 'border-accent/30 bg-accent/10 text-primary'
-    : 'border-red-500/30 bg-red-500/10 text-red-500',
-)
+const statusClass = computed(() => {
+  if (submitted.value) {
+    if (submitStatus.value === 'already-subscribed') {
+      return 'border-teal-400/30 bg-teal-400/10 text-teal-300'
+    }
+    return 'border-accent/30 bg-accent/10 text-primary'
+  }
+  return 'border-red-500/30 bg-red-500/10 text-red-500'
+})
 
 const onSubmit = handleSubmit(async (values) => {
   loading.value = true
   submitError.value = ''
   try {
-    await $fetch('/api/resend/create-contact', {
+    const res = await $fetch<{
+      success: boolean
+      status?: 'new-subscriber' | 'already-subscribed'
+      message?: string
+    }>('/api/resend/create-contact', {
       method: 'POST',
       body: { email: values.email },
     })
     submitted.value = true
+    submitStatus.value = res?.status || 'new-subscriber'
+    submitMessage.value = res?.message || 'Email saved. Drop radar active for Android & iOS.'
     resetForm()
   } catch (err: any) {
     console.error('[LdHero] submit failed:', err)
     submitted.value = false
+    submitStatus.value = ''
     submitError.value = err?.data?.message || 'Failed to save email. Try again.'
   } finally {
     loading.value = false
@@ -110,7 +123,7 @@ const trustBadges = [
       >
         <template v-if="submitted">
           <PhSealCheck class="size-3.5 shrink-0" weight="fill" />
-          <span>Status: Email saved. Drop radar active for Android &amp; iOS.</span>
+          <span>Status: {{ submitMessage }}</span>
         </template>
         <template v-else-if="submitError">
           <PhWarningOctagon class="size-3.5 shrink-0" weight="fill" />
