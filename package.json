@@ -1,6 +1,7 @@
 {
   "name": "free-epic-games-mobile-mail",
   "type": "module",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "build": "nuxt build",
