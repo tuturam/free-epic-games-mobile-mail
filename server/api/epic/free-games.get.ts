@@ -11,7 +11,4 @@ export default defineCachedEventHandler(
       fetchedAt: new Date().toISOString(),
     }
   },
-  {
-    maxAge: 60,
-  },
 )

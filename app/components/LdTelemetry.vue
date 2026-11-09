@@ -93,23 +93,23 @@ const syncLabel = computed(() => (data.value?.fetchedAt ? formatSyncTime(data.va
 </script>
 
 <template>
-  <section class="relative px-6 sm:px-10 py-12">
+  <section class="relative px-4 sm:px-8 md:px-10 py-8 sm:py-12">
     <div class="relative grid grid-cols-1 gap-5 md:grid-cols-3">
       <!-- CARD 1: Active Claim Radar -->
-      <Card class="group flex flex-col justify-between gap-0 rounded border-white/10 bg-surface/70 p-5 transition-colors hover:border-white/20">
+      <Card class="group flex flex-col justify-between gap-0 rounded border-white/10 bg-surface/70 p-4 sm:p-5 transition-colors hover:border-white/20">
         <span class="crosshair-corner top-left" />
         <span class="crosshair-corner top-right" />
         <span class="crosshair-corner bottom-left" />
         <span class="crosshair-corner bottom-right" />
 
-        <CardHeader class="flex items-center justify-between border-b border-white/6 p-0 pb-3">
-          <CardTitle class="text-[11px] font-normal font-mono uppercase tracking-normal text-muted-foreground">
+        <CardHeader class="flex flex-row items-center justify-between gap-2 border-b border-white/6 p-0 pb-3">
+          <CardTitle class="text-[11px] font-normal font-mono uppercase tracking-normal text-muted-foreground truncate">
             ACTIVE CLAIM RADAR
           </CardTitle>
-          <Badge v-if="activeGame" class="animate-pulse rounded border border-accent/20 bg-accent/10 px-2 py-0.5 tech-mono text-[10px] font-bold text-primary">
+          <Badge v-if="activeGame" class="shrink-0 animate-pulse rounded border border-accent/20 bg-accent/10 px-2 py-0.5 tech-mono text-[10px] font-bold text-primary">
             CLAIMABLE NOW
           </Badge>
-          <Badge v-else variant="outline" class="rounded border-white/10 bg-white/5 px-2 py-0.5 tech-mono text-[10px] text-muted-foreground">
+          <Badge v-else variant="outline" class="shrink-0 rounded border-white/10 bg-white/5 px-2 py-0.5 tech-mono text-[10px] text-muted-foreground">
             NO ACTIVE DROP
           </Badge>
         </CardHeader>
@@ -117,27 +117,27 @@ const syncLabel = computed(() => (data.value?.fetchedAt ? formatSyncTime(data.va
         <CardContent class="p-0 pt-4">
           <div class="space-y-1">
             <div class="tech-mono text-xs text-muted-foreground">GAME TITLE:</div>
-            <div class="flex items-center justify-between gap-2 text-base font-bold text-white transition-colors group-hover:text-primary">
-              <span>{{ activeGame?.title ?? 'AWAITING NEXT DROP' }}</span>
-              <span v-if="activeGame" class="tech-mono text-xs whitespace-nowrap">
-                <span v-if="activeGame.originalPrice" class="text-muted-foreground line-through">{{ activeGame.originalPrice }}</span>
+            <div class="flex items-start justify-between gap-2 text-base font-bold text-white transition-colors group-hover:text-primary min-w-0">
+              <span class="break-words line-clamp-2 min-w-0">{{ activeGame?.title ?? 'AWAITING NEXT DROP' }}</span>
+              <span v-if="activeGame" class="shrink-0 tech-mono text-xs whitespace-nowrap pt-0.5">
+                <span v-if="activeGame.originalPrice" class="text-muted-foreground line-through mr-1">{{ activeGame.originalPrice }}</span>
                 <span class="font-semibold text-primary">FREE</span>
               </span>
             </div>
           </div>
 
           <div class="mt-4 space-y-1.5 rounded border border-white/6 bg-surface-container-lowest p-2.5 tech-mono text-xs">
-            <div class="flex justify-between text-[11px] text-muted-foreground">
-              <span>Platform:</span>
-              <span class="text-white">Android &amp; iOS ({{ region }})</span>
+            <div class="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+              <span class="shrink-0">Platform:</span>
+              <span class="text-right text-white truncate">Android &amp; iOS ({{ region }})</span>
             </div>
-            <div class="flex justify-between text-[11px] text-muted-foreground">
-              <span>Ends:</span>
-              <span class="text-white">{{ endsDate }} UTC</span>
+            <div class="flex flex-col min-[380px]:flex-row min-[380px]:items-center justify-between gap-0.5 min-[380px]:gap-2 text-[11px] text-muted-foreground">
+              <span class="shrink-0">Ends:</span>
+              <span class="min-[380px]:text-right text-white">{{ endsDate }} UTC</span>
             </div>
-            <div class="flex justify-between text-[11px] text-muted-foreground">
-              <span>Time Left:</span>
-              <span class="font-semibold text-primary">{{ timeLeft }}</span>
+            <div class="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+              <span class="shrink-0">Time Left:</span>
+              <span class="text-right font-semibold text-primary">{{ timeLeft }}</span>
             </div>
           </div>
 
@@ -146,52 +146,52 @@ const syncLabel = computed(() => (data.value?.fetchedAt ? formatSyncTime(data.va
           </div>
         </CardContent>
 
-        <CardFooter class="tech-mono mt-5 flex-row items-center justify-between border-t border-white/6 p-0 pt-3 text-[11px]">
-          <span class="text-muted-foreground">STORE: EPIC GAMES APP</span>
+        <CardFooter class="tech-mono mt-5 flex-row items-center justify-between gap-2 border-t border-white/6 p-0 pt-3 text-[10px] sm:text-[11px]">
+          <span class="truncate text-muted-foreground">STORE: EPIC GAMES APP</span>
           <a
             v-if="activeGame"
             :href="activeGame.url"
             target="_blank"
             rel="noopener"
-            class="flex items-center gap-0.5 font-semibold text-primary"
+            class="shrink-0 flex items-center gap-0.5 font-semibold text-primary hover:underline"
           >
             AVAILABLE <PhArrowRight class="size-3" weight="bold" />
           </a>
-          <span v-else class="text-muted-foreground">STANDBY</span>
+          <span v-else class="shrink-0 text-muted-foreground">STANDBY</span>
         </CardFooter>
       </Card>
 
       <!-- CARD 2: Email Dispatch Simulation Terminal -->
-      <Card class="flex flex-col justify-between gap-0 rounded border-white/10 bg-surface/70 p-5 transition-colors hover:border-white/20">
+      <Card class="flex flex-col justify-between gap-0 rounded border-white/10 bg-surface/70 p-4 sm:p-5 transition-colors hover:border-white/20">
         <span class="crosshair-corner top-left" />
         <span class="crosshair-corner top-right" />
         <span class="crosshair-corner bottom-left" />
         <span class="crosshair-corner bottom-right" />
 
-        <CardHeader class="flex items-center justify-between border-b border-white/6 p-0 pb-3">
-          <CardTitle class="text-[11px] font-normal font-mono uppercase tracking-normal text-muted-foreground">
+        <CardHeader class="flex flex-row items-center justify-between gap-2 border-b border-white/6 p-0 pb-3">
+          <CardTitle class="text-[11px] font-normal font-mono uppercase tracking-normal text-muted-foreground shrink-0">
             [02 // DISPATCH LOG]
           </CardTitle>
-          <CardDescription class="tech-mono text-[10px] text-white/40">
+          <CardDescription class="tech-mono text-[10px] text-white/40 truncate text-right">
             NOTIFICATION PREVIEW
           </CardDescription>
         </CardHeader>
 
         <CardContent class="p-0 pt-4">
           <div class="space-y-2 rounded border border-white/6 bg-surface-container-lowest p-3 tech-mono text-xs">
-            <div class="flex items-center justify-between border-b border-white/6 pb-1.5 text-[11px] text-muted-foreground">
-              <span>TO: &lt;subscriber@inbox&gt;</span>
-              <span class="text-primary">{{ activeGame ? 'DISPATCHED' : 'STANDBY' }}</span>
+            <div class="flex items-center justify-between gap-2 border-b border-white/6 pb-1.5 text-[11px] text-muted-foreground">
+              <span class="truncate">TO: &lt;subscriber@inbox&gt;</span>
+              <span class="shrink-0 font-semibold text-primary">{{ activeGame ? 'DISPATCHED' : 'STANDBY' }}</span>
             </div>
-            <div class="text-[11px] leading-snug text-white">
+            <div class="text-[11px] leading-snug text-white break-words">
               <span class="font-bold text-primary">SUBJ:</span>
               {{ broadcastSubject }}
             </div>
             <div class="text-[10px] leading-relaxed text-muted-foreground">
               Claim directly from the Epic Games app before the drop ends.
             </div>
-            <div class="flex justify-between text-[10px] text-muted-foreground">
-              <span>
+            <div class="flex flex-col min-[380px]:flex-row min-[380px]:items-center justify-between gap-1 text-[10px] text-muted-foreground">
+              <span class="shrink-0">
                 PRICE:
                 <template v-if="activeGame">
                   <span class="line-through">{{ activeGame.originalPrice }}</span>
@@ -199,7 +199,7 @@ const syncLabel = computed(() => (data.value?.fetchedAt ? formatSyncTime(data.va
                 </template>
                 <span v-else>—</span>
               </span>
-              <span>ENDS: {{ endsDate }} UTC</span>
+              <span class="min-[380px]:text-right">ENDS: {{ endsDate }} UTC</span>
             </div>
             <div class="pt-1">
               <a
@@ -207,7 +207,7 @@ const syncLabel = computed(() => (data.value?.fetchedAt ? formatSyncTime(data.va
                 :href="activeGame.url"
                 target="_blank"
                 rel="noopener"
-                class="block rounded border border-accent/30 bg-accent/10 py-1 text-center tech-mono text-[10px] font-bold text-primary"
+                class="block rounded border border-accent/30 bg-accent/10 py-1 text-center tech-mono text-[10px] font-bold text-primary hover:bg-accent/20 transition-colors"
               >
                 [ CLAIM ]
               </a>
@@ -218,24 +218,24 @@ const syncLabel = computed(() => (data.value?.fetchedAt ? formatSyncTime(data.va
           </div>
         </CardContent>
 
-        <CardFooter class="tech-mono mt-5 flex-row items-center justify-between border-t border-white/6 p-0 pt-3 text-[11px] text-muted-foreground">
-          <span>DELIVERY PROTOCOL</span>
-          <span class="text-white">SMTP FAST-RELAY</span>
+        <CardFooter class="tech-mono mt-5 flex-row items-center justify-between gap-2 border-t border-white/6 p-0 pt-3 text-[10px] sm:text-[11px] text-muted-foreground">
+          <span class="truncate">DELIVERY PROTOCOL</span>
+          <span class="shrink-0 text-white">SMTP FAST-RELAY</span>
         </CardFooter>
       </Card>
 
       <!-- CARD 3: Upcoming Secret Vault -->
-      <Card class="flex flex-col justify-between gap-0 rounded border-white/10 bg-surface/70 p-5 transition-colors hover:border-white/20">
+      <Card class="flex flex-col justify-between gap-0 rounded border-white/10 bg-surface/70 p-4 sm:p-5 transition-colors hover:border-white/20">
         <span class="crosshair-corner top-left" />
         <span class="crosshair-corner top-right" />
         <span class="crosshair-corner bottom-left" />
         <span class="crosshair-corner bottom-right" />
 
-        <CardHeader class="flex items-center justify-between border-b border-white/6 p-0 pb-3">
-          <CardTitle class="text-[11px] font-normal font-mono uppercase tracking-normal text-muted-foreground">
+        <CardHeader class="flex flex-row items-center justify-between gap-2 border-b border-white/6 p-0 pb-3">
+          <CardTitle class="text-[11px] font-normal font-mono uppercase tracking-normal text-muted-foreground truncate">
             VAULT COUNTDOWN
           </CardTitle>
-          <Badge variant="outline" class="gap-1 rounded border-white/10 bg-white/5 px-2 py-0.5 tech-mono text-[10px] text-muted-foreground">
+          <Badge variant="outline" class="shrink-0 gap-1 rounded border-white/10 bg-white/5 px-2 py-0.5 tech-mono text-[10px] text-muted-foreground">
             <PhLock class="size-2.5" weight="bold" /> LOCKED
           </Badge>
         </CardHeader>
@@ -243,15 +243,15 @@ const syncLabel = computed(() => (data.value?.fetchedAt ? formatSyncTime(data.va
         <CardContent class="p-0 pt-4">
           <div class="space-y-1">
             <div class="tech-mono text-xs text-muted-foreground">UPCOMING DROP:</div>
-            <div class="flex items-center gap-2 text-base font-bold text-white">
-              <PhQuestion class="size-4 text-primary" weight="bold" />
-              <span>{{ upcomingGame?.title ?? 'Epic Mystery Vault' }}</span>
+            <div class="flex items-center gap-2 text-base font-bold text-white min-w-0">
+              <PhQuestion class="size-4 text-primary shrink-0" weight="bold" />
+              <span class="truncate">{{ upcomingGame?.title ?? 'Epic Mystery Vault' }}</span>
             </div>
           </div>
 
           <div class="mt-4 rounded border border-white/6 bg-surface-container-lowest p-3 text-center tech-mono">
             <div class="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">Opens In:</div>
-            <div class="text-lg font-bold tracking-widest text-primary">{{ vaultOpens }}</div>
+            <div class="text-base sm:text-lg font-bold tracking-wider sm:tracking-widest text-primary">{{ vaultOpens }}</div>
           </div>
 
           <div class="mt-2 tech-mono text-[10px] leading-relaxed text-muted-foreground">
@@ -267,25 +267,25 @@ const syncLabel = computed(() => (data.value?.fetchedAt ? formatSyncTime(data.va
           </div>
         </CardContent>
 
-        <CardFooter class="tech-mono mt-5 flex-row items-center justify-between border-t border-white/6 p-0 pt-3 text-[11px]">
-          <span class="text-muted-foreground">AUTO-ALERT</span>
-          <span class="font-semibold text-primary">STANDBY (ENABLED)</span>
+        <CardFooter class="tech-mono mt-5 flex-row items-center justify-between gap-2 border-t border-white/6 p-0 pt-3 text-[10px] sm:text-[11px]">
+          <span class="truncate text-muted-foreground">AUTO-ALERT</span>
+          <span class="shrink-0 font-semibold text-primary">STANDBY (ENABLED)</span>
         </CardFooter>
       </Card>
     </div>
 
-    <div class="mt-5 flex flex-wrap items-center justify-between gap-3 rounded border border-white/8 bg-surface/30 p-3 tech-mono text-[11px] text-muted-foreground">
-      <div class="flex items-center gap-3">
+    <div class="mt-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 sm:gap-3 rounded border border-white/8 bg-surface/30 p-3 tech-mono text-[10px] sm:text-[11px] text-muted-foreground">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
         <span class="font-medium text-white">[DATA STREAM]</span>
-        <span>Feed: Epic Games Mobile Store API</span>
+        <span class="break-words">Feed: Epic Games Store API</span>
         <span class="hidden text-white/20 sm:inline">|</span>
-        <span class="hidden sm:inline">Refresh: 60 seconds</span>
+        <span class="hidden sm:inline">Refresh: 60s</span>
         <span class="hidden text-white/20 sm:inline">|</span>
         <span class="hidden sm:inline">Last sync: {{ syncLabel }}</span>
       </div>
-      <div class="flex items-center gap-2 text-primary">
-        <PhShieldCheck class="size-3.5" weight="bold" />
-        <span>100% Phishing-Free &amp; No Unofficial Links</span>
+      <div class="flex items-center gap-1.5 text-primary shrink-0">
+        <PhShieldCheck class="size-3.5 shrink-0" weight="bold" />
+        <span>100% Phishing-Free</span>
       </div>
     </div>
   </section>
